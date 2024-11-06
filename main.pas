@@ -19,7 +19,7 @@ interface
 
 uses Windows, SysUtils, Classes, Graphics, Forms, Controls, Menus,
   StdCtrls, Dialogs, Buttons, Messages, ExtCtrls, ComCtrls, StdActns,
-  ActnList, ToolWin, ImgList, AY, WaveOutAPI, trfuncs, grids, ChildWin,  SpectrumAnalyzer,
+  ActnList, ToolWin, ImgList, AY, WaveOutAPI, trfuncs, grids, ChildWin,  AudioQueue, SpectrumAnalyzer,
   MidiType, MidiIn, ColorThemes, ShellAPI, inifiles, RegExpr{$IFDEF LOGGER}, Logger {$ENDIF};
 
 const
@@ -2480,7 +2480,7 @@ var
     Saved_StartupAction: byte;
     Saved_WinThemeIndex: Integer;
     Saved_DisableCtrlClick: Boolean;
-    Saved_DisableInfoWin: Boolean;    
+    Saved_DisableInfoWin: Boolean;
     Saved_ManualChipFreq: Integer;
     Saved_ManualIntFreq: Integer;
     Saved_PositionSize: Integer;
@@ -3050,7 +3050,7 @@ begin
   TMDIChild(ActiveMDIChild).Tracks.RemoveSelection;
   TMDIChild(ActiveMDIChild).CheckStringGrid1Position;
   ScrollToPlayingWindow;
-  
+
   for i := 1 to NumberOfSoundChips do
   begin
     Module_SetPointer(PlayingWindow[i].VTMP, i);
@@ -7283,7 +7283,6 @@ begin
   Clipboard.AsText := StatusBar.Panels[1].Text;
 
 end;
-
 
 
 

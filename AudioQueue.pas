@@ -9,6 +9,7 @@ type
   TBufferData = record
     Buffer: Pointer;
     Size: Integer;
+
   end;
 
   TAudioQueue = class
@@ -27,6 +28,9 @@ var
   daAudioQueue: TAudioQueue;
 
 implementation
+
+
+
 
 constructor TAudioQueue.Create;
 begin
@@ -67,6 +71,12 @@ begin
     FLock.Leave;
   end;
 end;
+
+initialization
+   daAudioQueue := TAudioQueue.Create
+
+finalization
+  daAudioQueue.Free;
 
 end.
 

@@ -14,7 +14,7 @@ unit WaveOutAPI;
 
 interface
 
-uses Windows, Messages, Dialogs, MMSystem, SysUtils, Forms, trfuncs, Classes,
+uses Windows, Messages, Dialogs, MMSystem, SysUtils, Forms, trfuncs, Classes, AudioQueue,
      ExportWav, ayumi;
 
 type
@@ -248,6 +248,7 @@ var
   BufferSize: Integer;
   i, j, SampleSize: integer;
   mut: boolean;
+  abuf:TBufferData;
 
 begin
 
@@ -277,12 +278,12 @@ begin
               begin
                 WH.dwBufferLength := BuffLen * SampleSize;
                 WH.dwFlags := WH.dwFlags and not WHDR_DONE;
-                  // Allocate memory for the BufferData variable
-                  //BufferData := AllocMem(BuffLen * SampleSize);
-                   // Copy the data to the BufferData variable
-                   //System.Move(WH.lpData^, BufferData^, BuffLen * SampleSize);
-
-                  PostMessage(MainForm.Handle, UM_UPDATE_SPECTRUM, Integer(@BufferData), BuffLen * SampleSize);
+                    BufferData := AllocMem(BuffLen * SampleSize);
+                    System.Move(WH.lpData^, BufferData^, BuffLen * SampleSize);
+                    abuf.Buffer := BufferData;
+                    abuf.Size :=  BuffLen * SampleSize;
+                    daAudioQueue.Enqueue(abuf);
+                  //PostMessage(MainForm.Handle, UM_UPDATE_SPECTRUM, Integer(@BufferData), BuffLen * SampleSize);
                 EnterCriticalSection(WOCS);
                 try
                   WOCheck(waveOutWrite(HWO, @WH, sizeof(WAVEHDR)));
