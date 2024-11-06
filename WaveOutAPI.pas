@@ -234,6 +234,7 @@ function WOThreadFunc(a: pointer): dword; stdcall;
 
   function AllBuffersDone: boolean;
   var
+
     i: integer;
   begin
     Result := False;
@@ -243,10 +244,13 @@ function WOThreadFunc(a: pointer): dword; stdcall;
   end;
 
 var
+  BufferData:PByte;
+  BufferSize: Integer;
   i, j, SampleSize: integer;
   mut: boolean;
 
 begin
+
   SampleSize := (SampleBit div 8) * NumberOfChannels;
   mut := False;
   try
@@ -273,7 +277,12 @@ begin
               begin
                 WH.dwBufferLength := BuffLen * SampleSize;
                 WH.dwFlags := WH.dwFlags and not WHDR_DONE;
+                  // Allocate memory for the BufferData variable
+                  BufferData := AllocMem(BuffLen * SampleSize);
+                   // Copy the data to the BufferData variable
+                   System.Move(WH.lpData^, BufferData^, BuffLen * SampleSize);
 
+                  PostMessage(MainForm.Handle, UM_UPDATE_SPECTRUM, Integer(@BufferData), BuffLen * SampleSize);
                 EnterCriticalSection(WOCS);
                 try
                   WOCheck(waveOutWrite(HWO, @WH, sizeof(WAVEHDR)));

@@ -19,13 +19,14 @@ interface
 
 uses Windows, SysUtils, Classes, Graphics, Forms, Controls, Menus,
   StdCtrls, Dialogs, Buttons, Messages, ExtCtrls, ComCtrls, StdActns,
-  ActnList, ToolWin, ImgList, AY, WaveOutAPI, trfuncs, grids, ChildWin,
+  ActnList, ToolWin, ImgList, AY, WaveOutAPI, trfuncs, grids, ChildWin,  SpectrumAnalyzer,
   MidiType, MidiIn, ColorThemes, ShellAPI, inifiles, RegExpr{$IFDEF LOGGER}, Logger {$ENDIF};
 
 const
   UM_REDRAWTRACKS   = WM_USER + 1;
   UM_PLAYINGOFF     = WM_USER + 2;
   UM_FINALIZEWO     = WM_USER + 3;
+  UM_UPDATE_SPECTRUM = WM_USER + 4;
 
 
   StdAutoEnvMax = 7;
@@ -611,6 +612,7 @@ type
 
   protected
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+    procedure HandleUpdateSpectrum(var Message: TMessage); message UM_UPDATE_SPECTRUM;
 
   public
     { Public declarations }
@@ -7281,6 +7283,27 @@ begin
   Clipboard.AsText := StatusBar.Panels[1].Text;
 
 end;
+
+
+
+
+
+procedure TMainForm.HandleUpdateSpectrum(var Message: TMessage);
+var
+  BufferData: PByte;
+  BufferSize: Integer;
+  SpectrumAnalyzer: TSpectrumAnalyzerForm;
+  Buffer: array of Byte;
+  i: Integer;
+begin
+  BufferData := PByte(Message.WParam);
+  BufferSize := Integer(Message.LParam);
+
+
+ 
+    SpectrumAnalyzer.SetAudioData(BufferData, BufferSize);
+end;
+
 
 end.
 
