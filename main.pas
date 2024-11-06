@@ -7300,8 +7300,8 @@ begin
   BufferSize := Integer(Message.LParam);
 
 
- 
-    SpectrumAnalyzer.SetAudioData(BufferData, BufferSize);
+
+   //TThread.Synchronize(nil,  SpectrumAnalyzer.SetAudioData);
 end;
 
 

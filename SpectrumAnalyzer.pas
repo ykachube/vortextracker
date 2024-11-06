@@ -15,12 +15,15 @@ type   TBarData =  record
   TSpectrumAnalyzerForm = class(TForm)
 
    
-     pb1: TPaintBox;
 
 
+  pb1: TPaintBox;
+    tmr1: TTimer;
 
     procedure UpdateDisplay;
+    procedure tmr1Timer(Sender: TObject);
   public
+
     procedure SetAudioData(Buffer: PByte; Size: Integer);
   end;
 
@@ -46,7 +49,8 @@ var
   I, J: Integer;
 
 begin
-
+   UpdateDisplay;
+   Exit;
    OldBuffer := Buffer ;
   //SetLength(FBuffer,Size);
   //System.Move(Buffer^,Pointer(FBuffer),Size);
@@ -68,9 +72,9 @@ begin
   begin
     for I := 0 to WindowSize - 2 do
     begin
-      Inc (Buffer,I+J*(WindowSize - 1));
-      Channels[J] := Channels[J] + Buffer^ * 1.0;
-      Buffer := OldBuffer;
+      //Inc (Buffer,I+J*(WindowSize - 1));
+    //  Channels[J] := Channels[J] + Buffer^ * 1.0;
+     // Buffer := OldBuffer;
     end;
 
     // Calculate the RMS value for each channel
@@ -97,17 +101,18 @@ begin
 end;
 
 procedure TSpectrumAnalyzerForm.UpdateDisplay;
-
-  var
-  
-  BarWidth: Integer;
-  BarHeight: Integer;
-  BarX, BarY: Integer;
-  ColorLevel: Integer;
+var
+  BarWidth, BarHeight, BarX, BarY, ColorLevel, I: Integer;
   Brush: TBrush;
-  I: Integer;
 begin
- // BarData := TBarDataArray(Self.Tag);
+  // Generate random test data
+  Randomize; // Initialize random number generator
+  for I := 0 to High(BarData) do
+  begin
+    BarData[I].Frequency := 20.0 * I; // Assuming each bar represents an increasing frequency step
+    BarData[I].Level := Random(100); // Generate a random level between 0 and 100
+  end;
+
   BarWidth := pb1.Width div 32;
   BarHeight := pb1.Height;
   BarX := 0;
@@ -118,15 +123,16 @@ begin
   for I := 0 to 31 do
   begin
     // Calculate the height of the bar
-    BarHeight := Round(BarData[I].Level * pb1.Height);
+    BarHeight := Round((BarData[I].Level / 100) * pb1.Height);  // Adjust height calculation
 
     // Set the color of the bar
     Brush := TBrush.Create;
+    Brush.Style := bsHorizontal;
     try
-      ColorLevel := Round((BarData[I].Level * 16) / 255);
-     Brush.Color := RGB(255 - (ColorLevel * 255) div 16, (ColorLevel * 255) div 16, 0);
+      ColorLevel := Round((BarData[I].Level * 16) / 100);   // Adjust color calculation for max level 100
+      Brush.Color := RGB(255 - (ColorLevel * 255) div 16, (ColorLevel * 255) div 16, 0);
       pb1.Canvas.Brush := Brush;
-      pb1.Canvas.FillRect(Rect(BarX, BarY, BarX + BarWidth, BarY + BarHeight));
+      pb1.Canvas.FillRect(Rect(BarX, pb1.Height - BarHeight, BarX + BarWidth, pb1.Height));  // Draw from bottom up
     finally
       Brush.Free;
     end;
@@ -134,10 +140,16 @@ begin
     // Move to the next bar
     BarX := BarX + BarWidth;
   end;
+
+  pb1.Canvas.Refresh; // Ensure the canvas is refreshed to show updates
 end;
 
 
-
 {$R *.dfm}
+
+procedure TSpectrumAnalyzerForm.tmr1Timer(Sender: TObject);
+begin
+ UpdateDisplay;
+end;
 
 end.

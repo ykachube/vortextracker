@@ -39,7 +39,8 @@ uses
   TrackInf in 'TrackInf.pas' {TrackInfoForm},
   Logger in 'Logger.pas',
   PatternPacker in 'PatternPacker.pas',
-  SpectrumAnalyzer in 'SpectrumAnalyzer.pas' {SpectrumAnalyzerForm};
+  SpectrumAnalyzer in 'SpectrumAnalyzer.pas' {SpectrumAnalyzerForm},
+  AudioQueue in 'AudioQueue.pas';
 
 {$R *.RES}
 {$R SNDH\SNDH.RES}
