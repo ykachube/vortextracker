@@ -47,29 +47,41 @@ begin
 end;
 
 procedure TAudioQueue.Enqueue(const Item: TBufferData);
+var
+NewItem: ^TBufferData;
 begin
-  FLock.Enter;
-  try
-    FList.Add(@Item);
-  finally
-    FLock.Leave;
-  end;
+FLock.Enter;
+try
+New(NewItem);
+NewItem^.Size := Item.Size;
+GetMem(NewItem^.Buffer, Item.Size);
+Move(Item.Buffer^, NewItem^.Buffer^, Item.Size);
+FList.Add(NewItem);
+WriteLn('Enqueued buffer of size: ', Item.Size); // Logging
+finally
+FLock.Leave;
+end;
 end;
 
 function TAudioQueue.Dequeue(var Item: TBufferData): Boolean;
+var
+TempItem: ^TBufferData;
 begin
-  Result := False;
-  FLock.Enter;
-  try
-    if FList.Count > 0 then
-    begin
-      Item := TBufferData(FList[0]^);
-      FList.Delete(0);
-      Result := True;
-    end;
-  finally
-    FLock.Leave;
-  end;
+Result := False;
+FLock.Enter;
+try
+if FList.Count > 0 then
+begin
+TempItem := FList[0];
+Item := TempItem^;
+FList.Delete(0);
+WriteLn('Dequeued buffer of size: ', Item.Size); // Logging
+Dispose(TempItem);
+Result := True;
+end;
+finally
+FLock.Leave;
+end;
 end;
 
 initialization

@@ -40,7 +40,8 @@ uses
   Logger in 'Logger.pas',
   PatternPacker in 'PatternPacker.pas',
   SpectrumAnalyzer in 'SpectrumAnalyzer.pas' {SpectrumAnalyzerForm},
-  AudioQueue in 'AudioQueue.pas';
+  AudioQueue in 'AudioQueue.pas',
+  IntFFT in 'IntFFT.pas';
 
 {$R *.RES}
 {$R SNDH\SNDH.RES}
