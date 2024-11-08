@@ -43,6 +43,8 @@ begin
 Result := 1;
 while Result < Value do
 Result := Result * 2;
+
+//Result := Result * 2;
 end;
 
 procedure TSpectrumAnalyzerForm.UpdateDisplay;
@@ -59,20 +61,21 @@ begin
 P := nil;
 FFT := TIntFFT.Create;
 
-WriteLn('dequene');
-
+WriteLn('before deq');
 try
 while daAudioQueue.Dequeue(Buf) do
 begin
-  WriteLn('dequene begin');
+WriteLn('step deq':Buf.Size );
 P := PSmallInt(Buf.Buffer);  // Cast to PSmallInt to work with 16-bit audio data
 if P = nil then
 Exit;
 
 WindowSize := Buf.Size div SizeOf(SmallInt);
 PaddedSize := NextPowerOf2(WindowSize);
+WriteLn('before setlength:',  PaddedSize);
 SetLength(ComplexData, PaddedSize);
 
+WriteLn('convert');
 // Convert audio data to complex numbers and pad with zeros
 for I := 0 to WindowSize - 1 do
 begin
@@ -85,29 +88,32 @@ begin
 ComplexData[I].Re := 0;
 ComplexData[I].Im := 0;
 end;
-    WriteLn('fft');
+ WriteLn('before fft');
 // Perform FFT
 FFT.PerformFFT(ComplexData, False);
-     WriteLn('calc');
+WriteLn('calc');
 // Calculate the magnitude of each frequency bin
-BandSize := PaddedSize div 32;
+BandSize := PaddedSize div 64;
 for I := 0 to 31 do
 begin
 BarData[I].Frequency := I * (44100 / PaddedSize); // Assuming a sample rate of 44100 Hz
 BarData[I].Level := 0;
 for J := I * BandSize to (I + 1) * BandSize - 1 do
 begin
+if J < PaddedSize then
 BarData[I].Level := BarData[I].Level + Round(Sqrt(Sqr(ComplexData[J].Re) + Sqr(ComplexData[J].Im)));
 end;
-BarData[I].Level := BarData[I].Level div (BandSize*5); // Average the levels
+BarData[I].Level := BarData[I].Level div (BandSize*8); // Average the levels
+
+// Debug: Print band data
+WriteLn('Band ', I, ': Frequency = ', BarData[I].Frequency:0:2, ', Level = ', BarData[I].Level);
 end;
-   WriteLn('free buf');
+ WriteLn('before free');
 // Free the buffer memory after processing
 FreeMem(Buf.Buffer);
 Buf.Buffer := nil; // Set pointer to nil after freeing memory
- WriteLn('end ');
 end;
-
+ // WriteLn('before draw');
 // Draw the bars
 BarWidth := pb1.Width div 32;
 BarX := 0;
@@ -119,10 +125,11 @@ BarHeight := Round((BarData[I].Level / 100) * pb1.Height);  // Adjust height cal
 Brush := TBrush.Create;
 Brush.Style := bsHorizontal;
 try
-Brush.Color := RGB(255 - (BarData[I].Level * 255) div 100, (BarData[I].Level * 255) div 100, 0);
+Brush.Color := RGB(255 - (BarData[I].Level * 255) div 100, (BarData[I].Level * 255) div 100, 128);
 pb1.Canvas.Brush := Brush;
 pb1.Canvas.FillRect(Rect(BarX, pb1.Height - BarHeight, BarX + BarWidth, pb1.Height));  // Draw from bottom up
 finally
+   // WriteLn('before brush free');
 Brush.Free;
 end;
 

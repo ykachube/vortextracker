@@ -10,8 +10,9 @@ Version 2.0 and later
 }
 
 program VT;
-
+   {$define EnableMemoryLeakReporting}
 uses
+  FastMM4,
   Forms,
   Dialogs,
   Windows,
@@ -53,6 +54,7 @@ uses
 {$R Icons\Icons.RES}
 
 begin
+
   Application.Initialize;
   Application.Title := 'Vortex Tracker';
   Application.CreateForm(TMainForm, MainForm);

@@ -278,11 +278,15 @@ begin
               begin
                 WH.dwBufferLength := BuffLen * SampleSize;
                 WH.dwFlags := WH.dwFlags and not WHDR_DONE;
-                    BufferData := AllocMem(BuffLen * SampleSize);
+                 WriteLn('before enq getmem');
+                    GetMem(BufferData, BuffLen * SampleSize+1);
                     System.Move(WH.lpData^, BufferData^, BuffLen * SampleSize);
                     abuf.Buffer := BufferData;
                     abuf.Size :=  BuffLen * SampleSize;
+
+                    WriteLn('before enq');
                     daAudioQueue.Enqueue(abuf);
+                   WriteLn('after enq');
                   //PostMessage(MainForm.Handle, UM_UPDATE_SPECTRUM, Integer(@BufferData), BuffLen * SampleSize);
                 EnterCriticalSection(WOCS);
                 try

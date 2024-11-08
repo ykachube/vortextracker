@@ -58,7 +58,9 @@ GetMem(NewItem^.Buffer, Item.Size);
 Move(Item.Buffer^, NewItem^.Buffer^, Item.Size);
 FList.Add(NewItem);
 WriteLn('Enqueued buffer of size: ', Item.Size); // Logging
+FreeMem(Item.Buffer);
 finally
+
 FLock.Leave;
 end;
 end;
@@ -80,6 +82,7 @@ Dispose(TempItem);
 Result := True;
 end;
 finally
+
 FLock.Leave;
 end;
 end;
@@ -88,6 +91,7 @@ initialization
    daAudioQueue := TAudioQueue.Create
 
 finalization
+
   daAudioQueue.Free;
 
 end.
