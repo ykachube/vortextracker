@@ -51,6 +51,10 @@ Result := Result * 2;
 //Result := Result * 2;
 end;
 
+
+
+
+
 procedure TSpectrumAnalyzerForm.UpdateDisplay;
 var
 BarWidth, BarHeight, BarX, I, J, K: Integer;
@@ -65,10 +69,9 @@ MaxLevel: Integer;
 LastBarData: array[0..31] of Integer;
 IntermediateBarData: array[0..31] of Integer;
 frameCount: Integer;
-
+LogFrequency: Double;
+LogBarPositions: array[0..31] of Integer;
 begin
-
-
 MaxLevel := 1;
 P := nil;
 FFT := TIntFFT.Create;
@@ -108,7 +111,8 @@ FFT.PerformFFT(ComplexData, False);
 BandSize := PaddedSize div 64;
 for I := 0 to 31 do
 begin
-BarData[I].Frequency := I * (44100 / PaddedSize); // Assuming a sample rate of 44100 Hz
+LogFrequency := Log10(I + 1); // Use logarithmic scale for frequency
+BarData[I].Frequency := LogFrequency * (44100 / PaddedSize); // Assuming a sample rate of 44100 Hz
 BarData[I].Level := 0;
 for J := I * BandSize to (I + 1) * BandSize - 1 do
 begin
@@ -124,13 +128,15 @@ FreeMem(Buf.Buffer);
 Buf.Buffer := nil; // Set pointer to nil after freeing memory
 end;
 
-// Draw the intermediate frames
+// Calculate logarithmic positions for the bars
+for I := 0 to 31 do
+LogBarPositions[I] := Round(Log10(I + 2) / Log10(32 + 1) * pb1.Width);
 
+// Draw the intermediate frames
 frameCount := 4;
 
 for K := 1 to frameCount do
 begin
-BarWidth := pb1.Width div 32;
 BarX := 0;
 
 for I := 0 to 31 do
@@ -139,27 +145,22 @@ IntermediateBarData[I] := LastBarData[I] + (BarData[I].Level - LastBarData[I]) *
 BarHeight := Round((IntermediateBarData[I] / 100) * pb1.Height);  // Adjust height calculation
 
 Brush := TBrush.Create;
-//Brush.Style:=bsCross;
-//SetCustomBrushStyle(Brush); // Use the custom brush style
-
-//Brush.Bitmap:=PatternBitmap;
-
-
 try
-
+Brush.Style := bsHorizontal;
 Brush.Color := RGB(
-Min(255, Round (IntermediateBarData[I] * 2.55)), // Red component
-Min(255, 255 - Round (Abs(IntermediateBarData[I] - 50) * 5.1)), // Green component
-Max(0, 255 - Round((IntermediateBarData[I] * 2.55))) // Blue component
+Min(255, 255 - Round(Abs(IntermediateBarData[I] - 50) * 5.1)), // Red component
+Min(255, Round(IntermediateBarData[I] * 2.55)), // Green component
+Max(0, 255 - Round((IntermediateBarData[I] * 4.55))) // Blue component
 );
+
 pb1.Canvas.Brush := Brush;
-pb1.Canvas.FillRect(Rect(BarX, pb1.Height - BarHeight, BarX + BarWidth-1, pb1.Height));  // Draw from bottom up
+SetBKColor(pb1.Canvas.Handle, Brush.Color);
+pb1.Canvas.FillRect(Rect(LogBarPositions[I], pb1.Height - BarHeight, LogBarPositions[I] + BarWidth - 3, pb1.Height));  // Draw from bottom up
 finally
 Brush.Free;
-
 end;
 
-BarX := BarX + BarWidth;
+BarX := LogBarPositions[I];
 end;
 
 pb1.Canvas.Refresh; // Ensure the canvas is refreshed to show updates
@@ -167,7 +168,6 @@ Sleep(10); // Small delay to make the transition visible
 end;
 finally
 FFT.Free;
-
 end;
 end;
 
