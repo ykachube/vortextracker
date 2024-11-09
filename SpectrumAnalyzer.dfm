@@ -1,9 +1,10 @@
 object SpectrumAnalyzerForm: TSpectrumAnalyzerForm
   Left = 1114
   Top = 566
-  Width = 529
-  Height = 343
+  BorderStyle = bsSingle
   Caption = 'SpectrumAnalyzer'
+  ClientHeight = 304
+  ClientWidth = 513
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText

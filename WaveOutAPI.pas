@@ -279,7 +279,7 @@ begin
                 WH.dwBufferLength := BuffLen * SampleSize;
                 WH.dwFlags := WH.dwFlags and not WHDR_DONE;
                  WriteLn('before enq getmem');
-                    GetMem(BufferData, BuffLen * SampleSize+1);
+                    GetMem(BufferData, BuffLen * SampleSize);
                     System.Move(WH.lpData^, BufferData^, BuffLen * SampleSize);
                     abuf.Buffer := BufferData;
                     abuf.Size :=  BuffLen * SampleSize;
