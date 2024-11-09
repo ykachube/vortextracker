@@ -70,7 +70,7 @@ LastBarData: array[0..31] of Integer;
 IntermediateBarData: array[0..31] of Integer;
 frameCount: Integer;
 LogFrequency: Double;
-LogBarPositions: array[0..31] of Integer;
+LogBins: array[0..31] of Integer;
 begin
 MaxLevel := 1;
 P := nil;
@@ -107,14 +107,16 @@ end;
 // Perform FFT
 FFT.PerformFFT(ComplexData, False);
 
+// Calculate the logarithmic frequency bins
+for I := 0 to 31 do
+LogBins[I] := Round(PaddedSize * (Log10(I + 2) / Log10(32 + 1)));
+
 // Calculate the magnitude of each frequency bin
-BandSize := PaddedSize div 64;
 for I := 0 to 31 do
 begin
-LogFrequency := Log10(I + 1); // Use logarithmic scale for frequency
-BarData[I].Frequency := LogFrequency * (44100 / PaddedSize); // Assuming a sample rate of 44100 Hz
+BarData[I].Frequency := LogBins[I] * (44100 / PaddedSize); // Assuming a sample rate of 44100 Hz
 BarData[I].Level := 0;
-for J := I * BandSize to (I + 1) * BandSize - 1 do
+for J := LogBins[I] to LogBins[I + 1] - 1 do
 begin
 if J < PaddedSize then
 BarData[I].Level := BarData[I].Level + Round(Sqrt(Sqr(ComplexData[J].Re) + Sqr(ComplexData[J].Im)));
@@ -128,15 +130,12 @@ FreeMem(Buf.Buffer);
 Buf.Buffer := nil; // Set pointer to nil after freeing memory
 end;
 
-// Calculate logarithmic positions for the bars
-for I := 0 to 31 do
-LogBarPositions[I] := Round(Log10(I + 2) / Log10(32 + 1) * pb1.Width);
-
 // Draw the intermediate frames
 frameCount := 4;
 
 for K := 1 to frameCount do
 begin
+BarWidth := pb1.Width div 32;
 BarX := 0;
 
 for I := 0 to 31 do
@@ -155,12 +154,12 @@ Max(0, 255 - Round((IntermediateBarData[I] * 4.55))) // Blue component
 
 pb1.Canvas.Brush := Brush;
 SetBKColor(pb1.Canvas.Handle, Brush.Color);
-pb1.Canvas.FillRect(Rect(LogBarPositions[I], pb1.Height - BarHeight, LogBarPositions[I] + BarWidth - 3, pb1.Height));  // Draw from bottom up
+pb1.Canvas.FillRect(Rect(BarX, pb1.Height - BarHeight, BarX + BarWidth - 3, pb1.Height));  // Draw from bottom up
 finally
 Brush.Free;
 end;
 
-BarX := LogBarPositions[I];
+BarX := BarX + BarWidth;
 end;
 
 pb1.Canvas.Refresh; // Ensure the canvas is refreshed to show updates
