@@ -60,13 +60,13 @@ TwiddleFactors.WPI := 0;
 M := Size div N;
 for K := 0 to N - 1 do
 begin
-WriteLn('K: ', K);  // Debug information
+//WriteLn('K: ', K);  // Debug information
 for I := K to Size - 1 do
 begin
 J := I + M;
 if (I >= Size) or (J >= Size) then
 begin
-WriteLn('Index out of bounds: I = ', I, ', J = ', J, ', Size = ', Size);
+//WriteLn('Index out of bounds: I = ', I, ', J = ', J, ', Size = ', Size);
 Exit;
 end;
 //WriteLn('I: ', I, ', J: ', J);  // Debug information

@@ -57,7 +57,7 @@ NewItem^.Size := Item.Size;
 GetMem(NewItem^.Buffer, Item.Size);
 Move(Item.Buffer^, NewItem^.Buffer^, Item.Size);
 FList.Add(NewItem);
-WriteLn('Enqueued buffer of size: ', Item.Size); // Logging
+//WriteLn('Enqueued buffer of size: ', Item.Size); // Logging
 FreeMem(Item.Buffer);
 finally
 
@@ -77,7 +77,7 @@ begin
 TempItem := FList[0];
 Item := TempItem^;
 FList.Delete(0);
-WriteLn('Dequeued buffer of size: ', Item.Size); // Logging
+//WriteLn('Dequeued buffer of size: ', Item.Size); // Logging
 Dispose(TempItem);
 Result := True;
 end;
