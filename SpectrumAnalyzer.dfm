@@ -23,7 +23,7 @@ object SpectrumAnalyzerForm: TSpectrumAnalyzerForm
     Hint = 'wow'
   end
   object tmr1: TTimer
-    Interval = 100
+    Interval = 10
     OnTimer = tmr1Timer
     Left = 128
     Top = 104
